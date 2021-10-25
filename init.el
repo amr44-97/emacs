@@ -1,20 +1,3 @@
-(require 'use-package)
-(setq use-package-always-ensure t)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(lsp-treemacs lsp-ivy helm-lsp lsp-ui lsp-mode eglot company all-the-icons-dired general which-key rainbow-delimiters helpful ivy-rich counsel doom-themes doom-modeline all-the-icons ivy use-package)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-
-
 ;; Melpa ;; Org
 (require 'package)
 
@@ -26,9 +9,18 @@
 (unless package-archive-contents
  (package-refresh-contents))
 
+;;; first do  package-install use-***
+
+(require 'use-package)
+(setq use-package-always-ensure t)
+
+;; Initialize use-package on non-Linux platforms
+(unless (package-installed-p 'use-package)
+   (package-install 'use-package))
 
 
 
+;; prevent Ugly startup 
 
 (setq inhibit-startup-message t)
 
@@ -40,10 +32,19 @@
 (menu-bar-mode -1)            ; Disable the menu bar
 
 
+
 ;; Font Configuration ----------------------------------------------------------
 
-(set-face-attribute 'default nil :font "Hack Nerd Font Italic" :height 130)
-;;(set-default-font “Hack Nerd Font normal italic”)
+(set-face-attribute 'default nil :font "JetBrainsMono Nerd Font Mono" :height 130)
+
+;; Themes molokai
+(use-package doom-themes
+  :init (load-theme 'doom-molokai t))
+
+;; Column number enable
+(column-number-mode)
+(global-display-line-numbers-mode t)
+
 
 ;; Disable line numbers for some modes
 (dolist (mode '(org-mode-hook
@@ -59,47 +60,15 @@
 
 
 ;; Make ESC quit prompts
-(global-set-key (kbd "<escape>")    'keyboard-escape-quit)
+;;(global-set-key (kbd "<escape>")    'keyboard-escape-quit)
 (global-set-key (kbd "C-=")         'text-scale-increase)
 (global-set-key (kbd "C--")         'text-scale-decrease)
-
-
-;; Initialize use-package on non-Linux platforms
-(unless (package-installed-p 'use-package)
-   (package-install 'use-package))
+(global-set-key (kbd "M-e")         'other-window)
+(global-set-key (kbd "M-t")         'evil-window-split)
 
 
 
-;; Column number enable
-(column-number-mode)
-(global-display-line-numbers-mode t)
 
-
-(use-package ivy
-  :diminish
-  :bind (("C-s" . swiper)
-         :map ivy-minibuffer-map
-         ("TAB" . ivy-alt-done)
-         ("C-l" . ivy-alt-done)
-         ("C-j" . ivy-next-line)
-         ("C-k" . ivy-previous-line)
-         :map ivy-switch-buffer-map
-         ("C-k" . ivy-previous-line)
-         ("C-l" . ivy-done)
-         ("C-d" . ivy-switch-buffer-kill)
-         :map ivy-reverse-i-search-map
-         ("C-k" . ivy-previous-line)
-         ("C-d" . ivy-reverse-i-search-kill))
-  :config
-  :init  (ivy-mode 1))
-
-
-
-(use-package ivy-rich
-  :init
-  (ivy-rich-mode 1))
-
-  ;; Counsel
 (use-package counsel
   :bind
          (("C-x b" . counsel-ibuffer)
@@ -118,17 +87,13 @@
   ([remap describe-key] . helpful-key))
 
 
-
 ;; M-x all-the-icons-install-fonts
 (require 'all-the-icons)
 (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
 
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
-  :custom ((doom-modeline-height 35)))
-
-(use-package doom-themes
-  :init (load-theme 'doom-molokai t))
+  :custom ((doom-modeline-height 22)))
 
 
 ;; Rainbow delimeters
@@ -170,7 +135,6 @@
   (evil-collection-init))
 
 
-
 (use-package general
   :config
   (general-create-definer rune/leader-keys
@@ -181,9 +145,13 @@
   (rune/leader-keys
     "t"  '(:ignore t :which-key "toggles")
     "tt" '(counsel-load-theme :which-key "choose theme")
-    "." 'dired
+    "." 'counsel-find-file
+    "w" 'evil-window-split 
     "bk" 'kill-current-buffer
+ ;;   "dq" 'evil-quit
     "o-" 'previous-buffer                         ))
+
+
 
 ;;   lsp-mode-setup
 
@@ -193,7 +161,8 @@
   (setq lsp-keymap-prefix "C-c l")
   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
          (c-mode . lsp)
-	 (c++-mode . lsp)
+	     (c++-mode . lsp)
+
          ;; if you want which-key integration
          (lsp-mode . lsp-enable-which-key-integration))
   :commands lsp)
@@ -204,3 +173,78 @@
 (add-to-list 'eglot-server-programs '((c++-mode c-mode) "clangd"))
 (add-hook 'c-mode-hook 'eglot-ensure)
 (add-hook 'c++-mode-hook 'eglot-ensure)
+(add-hook 'c-mode 'company-c-headers-path-system)
+
+
+
+
+
+ ;; Enable vertico
+    (use-package vertico
+      :init
+      (vertico-mode))
+
+
+
+
+;; Company make faster 
+
+
+(setq company-backends '(company-capf
+                         company-keywords
+                         company-semantic
+                         company-files
+                         company-etags
+                         company-elisp
+                         company-clang
+                         company-irony-c-headers
+                         company-irony
+                         company-jedi
+            			 company-c-headers-path-system
+                         company-cmake
+                         company-ispell
+                         company-yasnippet))
+
+(setq company-tooltip-limit 20)
+(setq company-show-numbers t)
+(setq company-idle-delay 0)
+(setq company-echo-delay 0)
+
+(defun ede-object-system-include-path ()
+  "Return the system include path for the current buffer."
+  (when ede-object
+    (ede-system-include-path ede-object)))
+
+(setq company-c-headers-path-system 'ede-object-system-include-path)
+
+(use-package helm-company
+   :ensure t
+   :after (helm company)
+   :bind (("C-c C-;" . helm-company))
+   :commands (helm-company)
+   :init
+   (define-key company-mode-map (kbd "C-;") 'helm-company)
+   (define-key company-active-map (kbd "C-;") 'helm-company))
+
+
+
+
+
+
+
+
+
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(vterm-toggle vterm pdf-tools markdown-preview-mode unicode-fonts which-key vertico use-package rainbow-delimiters lsp-mode helpful helm-company general evil-collection eglot doom-themes doom-modeline counsel all-the-icons-dired)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
