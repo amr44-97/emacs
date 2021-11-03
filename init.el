@@ -18,7 +18,7 @@
 (unless (package-installed-p 'use-package)
    (package-install 'use-package))
 
-
+(setq frame-resize-pixelwise t)
 
 ;; prevent Ugly startup 
 
@@ -39,7 +39,7 @@
 
 ;; Themes molokai
 (use-package doom-themes
-  :init (load-theme 'doom-molokai t))
+  :init (load-theme 'doom-one t))
 
 ;; Column number enable
 (column-number-mode)
@@ -145,7 +145,7 @@
   (rune/leader-keys
     "t"  '(:ignore t :which-key "toggles")
     "tt" '(counsel-load-theme :which-key "choose theme")
-    "." 'counsel-find-file
+;;    "." 'counsel-find-file
     "w" 'evil-window-split 
     "bk" 'kill-current-buffer
  ;;   "dq" 'evil-quit
@@ -161,7 +161,7 @@
   (setq lsp-keymap-prefix "C-c l")
   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
          (c-mode . lsp)
-	     (c++-mode . lsp)
+         (c++-mode . lsp)
 
          ;; if you want which-key integration
          (lsp-mode . lsp-enable-which-key-integration))
@@ -176,16 +176,10 @@
 (add-hook 'c-mode 'company-c-headers-path-system)
 
 
-
-
-
  ;; Enable vertico
     (use-package vertico
       :init
       (vertico-mode))
-
-
-
 
 ;; Company make faster 
 
@@ -200,7 +194,7 @@
                          company-irony-c-headers
                          company-irony
                          company-jedi
-            			 company-c-headers-path-system
+         		 company-c-headers-path-system
                          company-cmake
                          company-ispell
                          company-yasnippet))
@@ -208,8 +202,14 @@
 (setq company-tooltip-limit 20)
 (setq company-show-numbers t)
 (setq company-idle-delay 0)
-(setq company-echo-delay 0)
+;;(setq company-echo-delay 0)
+(setq company-minimum-prefix-length 1)
+(setq company-selection-wrap-around t)
+; Use tab key to cycle through suggestions.
+; ('tng' means 'tab and go')
+(company-tng-configure-default)
 
+;;;;;;;;;;;;;;
 (defun ede-object-system-include-path ()
   "Return the system include path for the current buffer."
   (when ede-object
@@ -240,8 +240,9 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(helm-minibuffer-history-key "M-p")
  '(package-selected-packages
-   '(vterm-toggle vterm pdf-tools markdown-preview-mode unicode-fonts which-key vertico use-package rainbow-delimiters lsp-mode helpful helm-company general evil-collection eglot doom-themes doom-modeline counsel all-the-icons-dired)))
+   '(yasnippet-snippets yasnippet vterm-toggle vterm pdf-tools markdown-preview-mode unicode-fonts which-key vertico use-package rainbow-delimiters lsp-mode helpful helm-company general evil-collection eglot doom-themes doom-modeline counsel all-the-icons-dired)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
