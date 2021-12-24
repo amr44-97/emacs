@@ -146,7 +146,7 @@
     "t"  '(:ignore t :which-key "toggles")
     "tt" '(counsel-load-theme :which-key "choose theme")
 ;;    "." 'counsel-find-file
-    "w" 'evil-window-split 
+    "w" '(evil-window-split 'vterm)
     "bk" 'kill-current-buffer
  ;;   "dq" 'evil-quit
     "o-" 'previous-buffer                         ))
@@ -170,7 +170,7 @@
 
 ;; eglot -- Clangd 
 (require 'eglot)
-(add-to-list 'eglot-server-programs '((c++-mode c-mode) "clangd"))
+(add-to-list 'eglot-server-programs '((c++-mode c-mode) "clangd-12"))
 (add-hook 'c-mode-hook 'eglot-ensure)
 (add-hook 'c++-mode-hook 'eglot-ensure)
 (add-hook 'c-mode 'company-c-headers-path-system)
@@ -230,8 +230,22 @@
 
 
 
+(setq vterm-toggle-fullscreen-p nil)
+(add-to-list 'display-buffer-alist
+             '((lambda(bufname _) (with-current-buffer bufname (equal major-mode 'vterm-mode)))
+                (display-buffer-reuse-window display-buffer-at-bottom)
+                ;;(display-buffer-reuse-window display-buffer-in-direction)
+                ;;display-buffer-in-direction/direction/dedicated is added in emacs27
+                (direction . bottom)
+                ;;(dedicated . t) ;dedicated is supported in emacs27
+                (reusable-frames . visible)
+                (window-height . 0.3)))
 
 
+;; Common lisp configuration
+
+(load (expand-file-name "~/.quicklisp/slime-helper.el"))
+(setq inferior-lisp-program "sbcl")
 
 
 
@@ -240,9 +254,11 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("246a9596178bb806c5f41e5b571546bb6e0f4bd41a9da0df5dfbca7ec6e2250c" default))
  '(helm-minibuffer-history-key "M-p")
  '(package-selected-packages
-   '(yasnippet-snippets yasnippet vterm-toggle vterm pdf-tools markdown-preview-mode unicode-fonts which-key vertico use-package rainbow-delimiters lsp-mode helpful helm-company general evil-collection eglot doom-themes doom-modeline counsel all-the-icons-dired)))
+   '(org-pretty-tags eglot-jl yasnippet-snippets yasnippet vterm-toggle vterm pdf-tools markdown-preview-mode unicode-fonts which-key vertico use-package rainbow-delimiters lsp-mode helpful helm-company general evil-collection eglot doom-themes doom-modeline counsel all-the-icons-dired)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
